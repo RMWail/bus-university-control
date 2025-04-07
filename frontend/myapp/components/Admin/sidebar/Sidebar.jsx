@@ -11,6 +11,7 @@ import {
   MdBarChart,
   MdLanguage
 } from 'react-icons/md';
+import {FaUniversity} from 'react-icons/fa'
 import { useLanguage } from '../../../context/LanguageContext';
 import { translations } from '../../../translations/translations';
 
@@ -56,7 +57,7 @@ function Sidebar() {
                 onClick={() => handleMenuItemActive("universities")}
               >
                 <span className="menu-link-icon">
-                  <MdLocationOn size={24} />
+                  < FaUniversity size={24} />
                 </span>
                 <span className="menu-link-text">{t.admin.sidebar.universitySection}</span>
               </Link>

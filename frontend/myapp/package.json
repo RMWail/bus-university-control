@@ -16,6 +16,7 @@
     "@mui/icons-material": "^6.1.5",
     "@mui/material": "^6.1.5",
     "@mui/x-charts": "^7.22.0",
+    "@tanstack/react-query": "^5.69.0",
     "antd": "^5.24.1",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",

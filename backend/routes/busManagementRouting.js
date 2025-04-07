@@ -86,10 +86,10 @@ busManagementRouter.get('/getAllBuses',(req,res)=>{
   
    try {
      const oldBusNbr = req.body.oldBusNbr;
-     const busId = req.body.newBus.ID_BUS;
-    const newBusNumber = req.body.newBus.NUMERO_BUS;
-   const driverFullName =req.body.newBus.nomChauffeur;
-   const driverPhoneNumber = req.body.newBus.telephoneChauffeur;
+     const busId = req.body.bus.ID_BUS;
+    const newBusNumber = req.body.bus.NUMERO_BUS;
+   const driverFullName =req.body.bus.nomChauffeur;
+   const driverPhoneNumber = req.body.bus.telephoneChauffeur;
    const checkBusSql = 'CALL checkNewBusNbr(?,?)';
    
   

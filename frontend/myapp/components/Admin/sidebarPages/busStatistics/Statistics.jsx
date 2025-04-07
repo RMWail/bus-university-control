@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import { 
   MdDirectionsBus, 
   MdCheckCircle, 
@@ -8,58 +7,19 @@ import {
   MdWarning,
   MdChecklist
 } from 'react-icons/md';
-import axios from 'axios';
 import './Statistics.scss';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { translations } from '../../../../translations/translations';
 import LoadingData from '../loadingData/LoadingData.jsx';
 import LoadingError from '../loadingError/LoadingError.jsx';
+import { useStatistics } from '../../../../hooks/useStatistics.js';
 
 const Statistics = () => {
-  const [stats, setStats] = useState({
-    totalBuses: 0,
-    activeBuses: 0,
-    inactiveBuses: 0,
-    totalRoutes: 0,
-    totalStations: 0,
-    coveredStations: 0,
-    uncoveredStations: 0
-  });
 
   const { currentLanguage } = useLanguage();
   const t = translations[currentLanguage];
-  const apiUrl = import.meta.env.VITE_API_URL;
-  const [loading,setLoading] = useState(true);
-  const [error,setError] = useState(null);
-  
+  const {loading,error,stats} = useStatistics();
 
-  useEffect(() => {
-    const fetchStatistics = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await axios.get(`${apiUrl}/getStatisticsData`);
-        const data = response.data.statistics;
-        setStats({
-          totalBuses: data[0][0].totalNbrBuses || 0,
-          activeBuses: data[1][0].nbrActiveBuses || 0,
-          inactiveBuses: data[0][0].totalNbrBuses - data[1][0].nbrActiveBuses || 0,
-          totalRoutes: data[2][0].totalNbrRoutes || 0,
-          totalStations: data[3][0].totalNbrStations || 0,
-          coveredStations: data[4][0].stationsWithBuses || 0,
-          uncoveredStations: data[3][0].totalNbrStations - data[4][0].stationsWithBuses || 0
-        });
-      } catch (error) {
-        setError(error.message);
-        console.error('Error fetching statistics:', error);
-      }
-      finally {
-         setLoading(false);
-      }
-    };
-
-    fetchStatistics();
-  }, []);
 
   const cards = [
     {

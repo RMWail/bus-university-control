@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   MdAdd, 
   MdEdit, 
@@ -6,8 +6,6 @@ import {
   MdSearch, 
   MdDirectionsBus, 
   MdLocationOn, 
-  MdArrowForward,
-  MdBackHand
 } from 'react-icons/md';
 import { TimePicker } from 'antd';
 import './RoutesManagement.scss';
@@ -19,20 +17,14 @@ import { useLanguage } from '../../../../context/LanguageContext';
 import { translations } from '../../../../translations/translations';
 import LoadingData from '../loadingData/LoadingData.jsx';
 import LoadingError from '../loadingError/LoadingError.jsx';
-
+import { useRoutes } from '../../../../hooks/useRoutes.js';
 const RoutesManagement = () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
-  const [routes, setRoutes] = useState([]);
+  const {loading,error,routes,availableStations,availableBuses,universitySections,addNewRoute,editRoute,deleteRoute} = useRoutes();
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingRoute, setEditingRoute] = useState(null);
-  const [availableStations, setAvailableStations] = useState([]);
-  const [availableBuses, setAvailableBuses] = useState([]); // This should be fetched from API
-  const [universitySections, setUniversitySections] = useState(['Central', 'Al Hadjeb', 'Chetma']); // This should be fetched from API
   const { currentLanguage } = useLanguage();
   const t = translations[currentLanguage];
-  const [loading,setLoading] = useState(true);
-  const [error,setError] = useState(null);
   const [errors,setErrors] = useState({});
   const [newRoute, setNewRoute] = useState({
     ID_RELATION: '',
@@ -48,30 +40,6 @@ const RoutesManagement = () => {
   
 
 
-  useEffect(() => {
-
-    const fetchRoutesData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await axios.get(`${apiUrl}/getRoutesData`);
-          setRoutes(response.data.currentCreatedRoutes);
-          setAvailableStations(response.data.stations);
-          setUniversitySections(response.data.universitySections);
-          setAvailableBuses(response.data.buses);
-        
-      } catch (error) {
-        setError(error.message);
-        console.error('Error fetching routes:', error);
-      }
-      finally{
-        setLoading(false);
-      }
-    };
-    fetchRoutesData();
-
-  }, []);
-
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -82,8 +50,6 @@ const RoutesManagement = () => {
       station.toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
-
-
 
   const handleAddBus = (bus) => {
     console.log('bus = '+bus);
@@ -209,9 +175,7 @@ const RoutesManagement = () => {
    if(Object.keys(validationErrors).length==0){
     
     if (editingRoute) {
-    //   console.log(' new Route info = '+newRoute.universitySection+'\n '+newRoute.mainStation+' \n'+newRoute.internalStations+'\n '+newRoute.buses+'\n '+newRoute.goSchedules+'\n '+newRoute.backSchedules); 
-     //   console.log(' editingRoute info = '+editingRoute.universitySection+'\n '+editingRoute.mainStation+' \n'+editingRoute.internalStations+'\n '+editingRoute.buses+'\n '+editingRoute.goSchedules+'\n '+editingRoute.backSchedules);
-         
+
      swal.fire({
       icon:'warning',
       title:t.admin.routes.confirmation,
@@ -220,67 +184,74 @@ const RoutesManagement = () => {
       confirmButtonText:`${t.admin.routes.confirm}`,
       cancelButtonText: `${t.admin.routes.cancel}`,
       confirmButtonColor:'#e67e22'
-    }).then((res)=> {
+    }).then(async(res)=> {
       if(res.isConfirmed) {
-        const targetRoute = routes.find(route => route.id === editingRoute.id);
+        const targetRoute = routes.find(route => route.id === newRoute.id);
         const oldBuses = targetRoute.buses;
-  
-        axios.post(`${apiUrl}/editRoute`,{routeId:editingRoute.id,oldBuses:oldBuses,newRoute})
-        .then((res)=>{
-          if(res.status == 200) {
-            if(res.data.message == 'Exist'){
-              swal.fire({
-                icon:'warning',
-                title:t.admin.routes.error,
-                html:`<span style="color:red">${t.admin.routes.errorMsg}</span>`,
-                confirmButtonColor:'#e67e22',
-                timer:3500,
-                showConfirmButton:false,
-              })
-            }
-           else {
-            swal.fire({
-              icon:'success',
-              title:t.admin.routes.success,
-              html:`<span style="color:green">${t.admin.routes.updateMsg}</span>`,
-              timer:3500,
-              showConfirmButton:false,
-            })
 
-            setRoutes(prev => prev.map(route => 
-              route.id === editingRoute.id ? { ...newRoute, id: route.id,section:newRoute.universitySection} : route
-            ));
+        const editRouteResponse = await editRoute(newRoute.id,oldBuses,newRoute);
+        console.log('editRouteResponse = ',editRouteResponse);
 
-            setAvailableBuses(res.data.buses);
-            setShowModal(false);
-            setNewRoute({
-              ID_UNIV:'',
-              universitySection: '',
-              ID_STATION:'',
-              mainStation: '',
-              internalStations: [],
-              buses: [],
-              goSchedules: [],
-              backSchedules: []
-            });
-            setEditingRoute(null);
-           }
-          }
-          else if(res.status == 400){
+        if(editRouteResponse.status == 200){
+
+          if(editRouteResponse.data.message == 'Exist'){
             swal.fire({
-              icon:'error',
+              icon:'warning',
               title:t.admin.routes.error,
-              html:`<span style="color:red">${t.admin.routes.errorMsg}</span>`,
+              html:`<span style="color:red">${t.admin.routes.routeExists}</span>`,
+              confirmButtonColor:'#e67e22',
               timer:3500,
               showConfirmButton:false,
             })
           }
-        })
+         else {
+          swal.fire({
+            icon:'success',
+            title:t.admin.routes.success,
+            html:`<span style="color:green">${t.admin.routes.updateMsg}</span>`,
+            timer:3500,
+            showConfirmButton:false,
+          })}
+
+
+          setShowModal(false);
+          setNewRoute({
+            ID_UNIV:'',
+            universitySection: '',
+            ID_STATION:'',
+            mainStation: '',
+            internalStations: [],
+            buses: [],
+            goSchedules: [],
+            backSchedules: []
+          });
+          setEditingRoute(null);
+        }
+
+        if(editRouteResponse.code=='ERR_NETWORK'){
+          swal.fire({
+            icon:'error',
+            title:t.admin.routes.error,
+            text:t.admin.routes.errorNetwork,
+            confirmButtonColor:'#e67e22',
+            timer:3500,
+            showConfirmButton:false,
+          })
+        }
+        if(editRouteResponse.code=='ERR_BAD_REQUEST'){
+          swal.fire({
+            icon:'error',
+            title:t.admin.routes.error,
+            text:`${editRouteResponse.data.error}`,
+            confirmButtonColor:'#e67e22',
+            timer:3500,
+            showConfirmButton:false,
+          })
+        }
       }
     })
   
       } else {
-       // console.log(' Route info = '+newRoute.universitySection+'\n '+newRoute.mainStation+' \n'+newRoute.internalStations+'\n '+newRoute.buses+'\n '+newRoute.goSchedules+'\n '+newRoute.backSchedules);
        
         swal.fire({
           icon:'warning',
@@ -291,69 +262,66 @@ const RoutesManagement = () => {
           cancelButtonText:t.admin.routes.cancel,
           confirmButtonColor:'#e67e22',
         })
-        .then((res)=>{
+        .then(async(res)=>{
           if(res.isConfirmed){
-            
-            axios.post(`${apiUrl}/addNewRoute`,newRoute)
-            .then((res)=>{
-              if(res.data.message!='Exist'){
-                console.log(res.data.message);
-                swal.fire({
-                  icon:'success',
-                  title:t.admin.routes.success,
-                  html:`<span style="color:green">${t.admin.routes.addSuccessMsg}</span>`,
-                  confirmButtonColor:'#e67e22',
-                  timer:3500,
-                  showConfirmButton:false,
-                })
-                setAvailableBuses(res.data.buses);
-                setRoutes(prev => [...prev, { ...newRoute, id: res.data.relationId,section:newRoute.universitySection }]);
-  
-                setShowModal(false);
-                setNewRoute({
-                  universitySection: '',
-                  mainStation: '',
-                  internalStations: [],
-                  buses: [],
-                  goSchedules: [],
-                  backSchedules: []
-                });
-                setEditingRoute(null);
-              }
-              else { 
-                swal.fire({
-                  icon:'warning',
-                  title:`${t.admin.routes.routeExists}`,
-                  html:`<span style="color:red">${newRoute.mainStation} ${t.admin.routes.to} ${newRoute.universitySection}</span>`,
-                  confirmButtonColor:'#e67e22',
-                  timer:3500,
-                  showConfirmButton:false,
-                })
-              }
-            })  
-            .catch(error=>{
-              console.log(error);
-              if(error.code =='ERR_NETWORK'){
-                swal.fire({
-                  icon:'error',
-                  title:t.admin.routes.error,
-                  text:t.admin.routes.errorNetwork,
-                  confirmButtonColor:'#e67e22',
-                  timer:3500,
-                  showConfirmButton:false,
-                })
-              }
-              else if(error.code =='ERR_BAD_REQUEST'){
-                swal.fire({
-                  icon:'error',
-                  title:t.admin.routes.error,
-                  text:`${error.response.data.error}`,
-                  confirmButtonColor:'#e67e22',
-                  timer:3500,
-                  showConfirmButton:false,
-                })
-              }
-            })
+           const addNewRouteResponse = await addNewRoute(newRoute);
+            console.log('addNewRouteResponse = ',addNewRouteResponse);
+    
+            if(addNewRouteResponse.status == 200){
+    
+                if(addNewRouteResponse.data.message!='Exist'){
+                  swal.fire({
+                    icon:'success',
+                    title:t.admin.routes.success,
+                    html:`<span style="color:green">${t.admin.routes.addSuccessMsg}</span>`,
+                    confirmButtonColor:'#e67e22',
+                    timer:3500,
+                    showConfirmButton:false,
+                  })
+    
+                  setShowModal(false);
+                  setNewRoute({
+                    universitySection: '',
+                    mainStation: '',
+                    internalStations: [],
+                    buses: [],
+                    goSchedules: [],
+                    backSchedules: []
+                  });
+                  setEditingRoute(null);
+                }
+                else {
+
+                  swal.fire({
+                    icon:'warning',
+                    title:`${t.admin.routes.routeExists}`,
+                    html:`<span style="color:red">${newRoute.mainStation} ${t.admin.routes.to} ${newRoute.universitySection}</span>`,
+                    confirmButtonColor:'#e67e22',
+                    timer:3500,
+                    showConfirmButton:false,
+                  }) }
+            }
+    
+            if(addNewRouteResponse.code=='ERR_NETWORK'){
+              swal.fire({
+                icon:'error',
+                title:t.admin.routes.error,
+                text:t.admin.routes.errorNetwork,
+                confirmButtonColor:'#e67e22',
+                timer:3500,
+                showConfirmButton:false,
+              })
+            }
+            if(addNewRouteResponse.code=='ERR_BAD_REQUEST'){
+              swal.fire({
+                icon:'error',
+                title:t.admin.routes.error,
+                text:`${addNewRouteResponse.data.error}`,
+                confirmButtonColor:'#e67e22',
+                timer:3500,
+                showConfirmButton:false,
+              })
+            }
           }
         })
   
@@ -364,8 +332,6 @@ const RoutesManagement = () => {
 
   
   const handleDelete = (routeId) => {
-    
-   
     swal.fire({
       icon:'warning',
       iconColor:'red',
@@ -376,11 +342,14 @@ const RoutesManagement = () => {
       cancelButtonText:t.admin.routes.cancel,
       confirmButtonColor:'#e67e22'
     }) 
-    .then((res)=>{
+    .then(async(res)=>{
       if(res.isConfirmed){
-        axios.post(`${apiUrl}/deleteRoute`,{routeId:routeId})
-        .then((res)=>{
-          if(res.status == 200) {
+    
+        const deleteRouteResponse = await deleteRoute(routeId);
+        console.log('deleteRouteResponse = ',deleteRouteResponse);
+
+        if(deleteRouteResponse.status == 200){
+
           swal.fire({
             icon:'success',
             title:t.admin.routes.success,
@@ -388,29 +357,30 @@ const RoutesManagement = () => {
             timer:3500,
             showConfirmButton:false,
           })
-            setAvailableBuses(res.data.buses);
-            setRoutes(prev => prev.filter(route => route.id !== routeId))
-          }
-          else if(res.status == 400){
+        }
+
+          if(deleteRouteResponse.code=='ERR_NETWORK'){
             swal.fire({
               icon:'error',
               title:t.admin.routes.error,
-              text:`${res.data.error}`,
+              text:t.admin.routes.errorNetwork,
               confirmButtonColor:'#e67e22',
               timer:3500,
               showConfirmButton:false,
             })
           }
-          
-        })
-        .catch((err)=>{
-          console.log(err);
-          swal.fire({
-            icon:'error',
-            title:t.admin.routes.error,
-            html:`<span style=color:"red">${t.admin.routes.errorNetwork}</span>`
-          })
-        })
+          if(deleteRouteResponse.code=='ERR_BAD_REQUEST'){
+            swal.fire({
+              icon:'error',
+              title:t.admin.routes.error,
+              text:`${deleteRouteResponse.data.error}`,
+              confirmButtonColor:'#e67e22',
+              timer:3500,
+              showConfirmButton:false,
+            })
+          }
+        
+
       }
     })
   };

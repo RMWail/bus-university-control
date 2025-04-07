@@ -1,10 +1,13 @@
 import express from 'express';
-import adminRouting from './routes/adminRouting.js';
+import statisticsRouting from './routes/statisticsRouting.js';
 import loginSignUpRouting from './routes/loginAndSignUpRouting.js'
 import forgetAndResetPassRouting from './routes/forgetAndResetPass.js';
 import accountVerificationRouting from './routes/accountVerification.js';
 import busManagementRouting from './routes/busManagementRouting.js';
 import stationManagementRouting from './routes/stationManagementRouting.js';
+import universitySectionRouting from './routes/universitySectionRouting.js';
+import routesManagementRouting from './routes/routesManagementRouting.js';
+import homeDahsboardRouting from './routes/homeDahsboardRouting.js';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import http from 'http';
@@ -34,7 +37,7 @@ app.use(cors({
   methods: ["GET","POST"]
 }
 ));
-// app.use(morgan('short'))
+ app.use(morgan('short'))
 app.use(bodyParser.json()); // for parsing application/x-www-form-urlencoded
 app.use(express.urlencoded({extended:true,parameterLimit:100000,limit:"500mb"}));
 
@@ -59,12 +62,16 @@ app.use((req,res,next)=>{
 
 
 
-app.use('/',adminRouting); // The routing of the admin 
+ // The routing of the admin 
 app.use('/',loginSignUpRouting);  // The routing of login and sign up operations
 app.use('/',forgetAndResetPassRouting); // The routing of forget and reset password for customer
 app.use('/',accountVerificationRouting); // The routing of customer account otp code verification
+app.use('/',homeDahsboardRouting);
 app.use('/',busManagementRouting);
 app.use('/',stationManagementRouting);
+app.use('/',routesManagementRouting);
+app.use('/',universitySectionRouting);
+app.use('/',statisticsRouting);
 
 /*
 if(isMainThread){

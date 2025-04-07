@@ -14,10 +14,13 @@ import { useLanguage } from '../../../../context/LanguageContext';
 import { translations } from '../../../../translations/translations';
 import LoadingData from '../loadingData/LoadingData.jsx';
 import LoadingError from '../loadingError/LoadingError.jsx';
+import { useBuses } from '../../../../hooks/useBuses';
 
 const BusManagement = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  const [buses, setBuses] = useState([]);
+
+  const {loading,error,buses,addNewBus,updateBus,deleteBus} = useBuses();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
@@ -25,8 +28,6 @@ const BusManagement = () => {
   const [oldBusNbr,setOldBusNbr] = useState('');
   const {currentLanguage} = useLanguage();
   const t  = translations[currentLanguage];
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [errors,setErrors] = useState({});
   const [newBus, setNewBus] = useState({
     ID_BUS:'',
@@ -37,26 +38,6 @@ const BusManagement = () => {
   });
 
 
-
-
-  useEffect(() => {
-
-    const fetchBuses = async () =>{
-      try {
-       setLoading(true);
-       setError(null);
-       const res = await axios.get(`${apiUrl}/getAllBuses`)    
-         setBuses(res.data.buses);
-      }catch(error) {
-       setError(error.message);
-      }
-      finally{
-       setLoading(false);
-      }
-}
-
-    fetchBuses();
-  }, []);
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -120,7 +101,6 @@ const BusManagement = () => {
 
    if(Object.keys(validationErrors).length==0){
     if (editingBus) {
-
       swal.fire({
         icon:'warning',
         title:`${t.admin.buses.confirm}`,
@@ -129,13 +109,13 @@ const BusManagement = () => {
         confirmButtonText:`${t.admin.forms.save}`,
         cancelButtonText:`${t.admin.forms.cancel}`,
         confirmButtonColor:'#e67e22'
-      }).then((res)=>{
+      }).then(async(res)=>{
         
       if(res.isConfirmed){
-        axios.post(`${apiUrl}/updateBus`,{newBus,oldBusNbr})
-        .then((res)=>{
-          if(res.data.message!='Exist'){
-            console.log(res.data.message);
+        const serviceUpdateBusResponse = await updateBus(newBus,oldBusNbr);
+        if(serviceUpdateBusResponse.status == 200){
+          if(serviceUpdateBusResponse.data.message!='Exist'){
+            console.log(serviceUpdateBusResponse.data.message);
             swal.fire({
               icon:'success',
               title:`${t.admin.alerts.success}`,
@@ -144,10 +124,6 @@ const BusManagement = () => {
               timer:3500,
               showConfirmButton:false,
             })
-            setBuses(prev => prev.map(bus => 
-              bus.ID_BUS === newBus.ID_BUS ? { ...bus, ...newBus } : bus
-            ));
-            
             setShowModal(false);
             setNewBus({
               ID_BUS:'',
@@ -179,21 +155,15 @@ const BusManagement = () => {
             setOldBusNbr('');
             setEditingBus(null);
           }
-           
-        })
-        .catch((err)=>{
-          console.log(err);
-          swal.fire({
-            icon:'error',
-            title:'Error',
-            html:`<span style=color:"red"}>${t.admin.buses.errorEditMessage} ${err}</span>`,
-            confirmButtonColor:'#e67e22'
-          })
-  
-        })
+        }
+        if(serviceUpdateBusResponse.code =='ERR_NETWORK'){
+          swal.fire(`${t.admin.alerts.operationFailed}`,`${t.admin.stations.errorNetwork}`,'error');
+        }
+   else if(serviceUpdateBusResponse.code =='ERR_BAD_REQUEST'){
+    swal.fire(`${t.admin.alerts.operationFailed}`,`${serviceUpdateBusResponse.error}`,'error');
+   }
       }
       })
-  
       } 
       else {   
         swal.fire({
@@ -204,69 +174,48 @@ const BusManagement = () => {
           confirmButtonText:`${t.admin.buses.confirm}`,
           cancelButtonText:`${t.admin.forms.cancel}`,
           confirmButtonColor:'#e67e22'
-        }).then((res)=>{
+        }).then(async(res)=>{
           
         if(res.isConfirmed){
-          axios.post(`${apiUrl}/addNewBus`,newBus)
-          .then((res)=>{       
-          if(res.data.message!='Exist'){
-              swal.fire({
-                icon:'success',
-                title:`${t.admin.alerts.success}`,
-                text:`${t.admin.buses.addSuccess}`,
-                confirmButtonColor:'#e67e22',
-                timer:3500,
-                showConfirmButton:false,
-              })
-              
-              const addedBus = {
-                ID_BUS:res.data.busId,
-                NUMERO_BUS: newBus.NUMERO_BUS,
-                nomChauffeur: newBus.nomChauffeur,
-                telephoneChauffeur: newBus.telephoneChauffeur,
-                valable: newBus.valable
-              }
-              setBuses(prev => [...prev, addedBus]);
-              setShowModal(false);
-              setNewBus({
-                NUMERO_BUS: '',
-                nomChauffeur: '',
-                telephoneChauffeur: '',
-                valable: 1
-              });  
-            }
-            else {
-              swal.fire({
-                icon:'error',
-                title:`${t.admin.alerts.error}`,
-                html:`<span style=color:"orangered"}>${t.admin.buses.busExistsMessage}</span>`,
-                confirmButtonColor:'#e67e22'
-              })
-            }
-             
+
+          const serviceAddBusResponse = await addNewBus(newBus);
+    //      .then((res)=>{
+      if(serviceAddBusResponse.status == 200) {
+        if(serviceAddBusResponse.data.message!='Exist'){
+          swal.fire({
+            icon:'success',
+            title:`${t.admin.alerts.success}`,
+            text:`${t.admin.buses.addSuccess}`,
+            confirmButtonColor:'#e67e22',
+            timer:3500,
+            showConfirmButton:false,
           })
-          .catch((err)=>{
-            console.log(err);
-            swal.fire({
-              icon:'error',
-              title:`${t.admin.alerts.error}`,
-              html:`<span style=color:"orangered"}>${t.admin.buses.errorAddMessage}</span>`,
-              confirmButtonColor:'#e67e22'
-            })
-            setShowModal(false);
-            setNewBus({
-              NUMERO_BUS: '',
-              nomChauffeur: '',
-              telephoneChauffeur: '',
-              valable: 1
-            });
-    
-          })
-  
+          
+          setShowModal(false);
+          setNewBus({
+            NUMERO_BUS: '',
+            nomChauffeur: '',
+            telephoneChauffeur: '',
+            valable: 1
+          });  
         }
-  
-  
-        })
+        else {
+          swal.fire({
+            icon:'error',
+            title:`${t.admin.alerts.error}`,
+            html:`<span style=color:"orangered"}>${t.admin.buses.busExistsMessage}</span>`,
+            confirmButtonColor:'#e67e22'
+          })
+        }
+         
+      } 
+      if(serviceAddBusResponse.code =='ERR_NETWORK'){
+        swal.fire(`${t.admin.alerts.operationFailed}`,`${t.admin.stations.errorNetwork}`,'error');
+      }
+ else if(serviceAddBusResponse.code =='ERR_BAD_REQUEST'){
+  swal.fire(`${t.admin.alerts.operationFailed}`,`${serviceAddBusResponse.error}`,'error');
+ 
+} } })
   
       }
    }
@@ -285,38 +234,33 @@ const BusManagement = () => {
       confirmButtonText:`${t.admin.buses.confirm}`,
       cancelButtonText:`${t.admin.forms.cancel}`,
       confirmButtonColor:'#e67e22'
-    }).then((res)=>{
-      
+    }).then(async(res)=>{
     if(res.isConfirmed){
-      axios.post(`${apiUrl}/deleteBus`,{busId:busId})
-      .then((res)=>{
-        
-          swal.fire({
-            icon:'success',
-            title:`${t.admin.alerts.success}`,
-            text:`${t.admin.buses.deleteSuccess}`,
-            timer:2500,
-            showConfirmButton:false,
-          })
-          setBuses(prev => prev.filter(bus => bus.ID_BUS !== busId));
-          setShowModal(false);
-          setNewBus({
-            NUMERO_BUS: '',
-            nomChauffeur: '',
-            telephoneChauffeur: '',
-            valable: 1
-          });
-                 
-      })
-      .catch((err)=>{
+
+      const serviceDeleteBusResponse = await deleteBus(busId);      
+      console.log('serviceDeleteBusResponse = ',serviceDeleteBusResponse);
+
+      if(serviceDeleteBusResponse.status ==200){
+            
+        swal.fire({
+          icon:'success',
+          title:`${t.admin.alerts.success}`,
+          text:`${t.admin.buses.deleteSuccess}`,
+          timer:2500,
+          showConfirmButton:false,
+        })          
+        setShowModal(false);
+        setNewBus({NUMERO_BUS: '',nomChauffeur: '',telephoneChauffeur: '',valable: 1});
+      }
+    
+      if(serviceDeleteBusResponse.code =='ERR_NETWORK' || serviceDeleteBusResponse.code =='ERR_BAD_REQUEST'){
         swal.fire({
           icon:`error`,
           title:`${t.admin.alerts.operationFailed}`,
           html:`<span style="color:red">${t.admin.buses.errorDeleteMessage}</span>`,
-          timer:4000,
+          
         })
-      })
-
+      }
     }
   } 
 

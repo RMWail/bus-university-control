@@ -1,46 +1,21 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MdSearch, MdLocationOn } from 'react-icons/md';
-import { FaFilter, FaBus, FaPhoneAlt, FaUniversity, FaMapMarkerAlt, FaSpinner } from 'react-icons/fa';
+import { FaFilter, FaBus, FaPhoneAlt, FaUniversity, FaMapMarkerAlt } from 'react-icons/fa';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { translations } from '../../../../translations/translations';
 import './HomeDashboard.scss';
-import axios from 'axios';
 import LoadingData from '../loadingData/LoadingData.jsx';
 import LoadingError from '../loadingError/LoadingError.jsx';
+import { useHomeDashboard } from '../../../../hooks/useHomeDashboard.js';
 
 const HomeDashboard = () => {
+
+  const {loading,error,routes} = useHomeDashboard();
+
   const { currentLanguage } = useLanguage();
   const t = translations[currentLanguage];
-
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSection, setSelectedSection] = useState('all');
-  const apiUrl = import.meta.env.VITE_API_URL;
-  const [routes, setRoutes] = useState([]);
-  const [loading,setLoading] = useState(true);
-  const [error,setError] = useState(null);
-
-
-  useEffect(() => {
-
-    
-  const fetchRoutes = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await axios.get(`${apiUrl}/getPathsData`)
-        setRoutes(res.data.paths);
-    }
-    catch (err) {
-      setError(err.message);
-      console.log(err);
-    }
-    finally {
-           setLoading(false);
-    }
-    };
-
-    fetchRoutes();
-  }, []);
 
   // Get unique sections for filter dropdown
   const sections = useMemo(() => {

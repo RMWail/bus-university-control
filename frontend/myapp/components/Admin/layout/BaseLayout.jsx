@@ -17,7 +17,7 @@ function BaseLayout() {
           "Authorization" : `Bearer ${token}`
         }
       })
-           console.log(response);
+     //      console.log(response);
            if(response.status !==201) {
             navigate('/login');
            }

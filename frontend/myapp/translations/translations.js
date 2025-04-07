@@ -101,6 +101,19 @@ export const translations = {
         loadingData:'Loading Data...',
         error:'No Data available because of a server error or a connection error',
        },
+       univSection: { 
+        addUnivSection:"add university section",
+        searchUniv:'search university',
+        confirmAdd: 'Are you sure you want to add this university?',
+        confirmDelete: 'Are you sure you want to delete this university?',
+        confirmation: 'Are you sure?',
+        deleteNoticeText:{
+         allInfo:'This will delete all its related information.',
+         allRoutes:'This will delete all the routes of this university.',
+         allBuses:'This will set all its buses to free and available to use.'
+        }
+       }
+       ,
       buses: {
         confirm: 'Confirm',
         confirmation: 'Are you sure?',
@@ -133,7 +146,7 @@ export const translations = {
         deleteSuccess: 'Bus was deleted successfully',
         errorEditMessage: 'Error appeared during editing a Bus',
         errorAddMessage: 'Error appeared during adding a Bus',
-        errorDeleteMessage: 'Error appeared during deleting a Bus'
+        errorDeleteMessage: 'Error appeared during deleting the Bus'
       },
       statistics: {
         title: 'Statistics Dashboard',
@@ -173,7 +186,7 @@ export const translations = {
         deleteMsg: 'The route has been deleted successfully',
         error: 'Error',
         errorMsg: 'An error occurred during the operation',
-        errorNetwork: 'A network error occurred while connecting to the server',
+        errorNetwork: 'Operation failed : A network error occurred while connecting to the server',
         status: 'Status',
         confirm: 'Confirm',
         cancel: 'Cancel',
@@ -216,7 +229,7 @@ export const translations = {
         updateMsg: 'Data has been updated successfully',
         error: 'Error',
         errorMsg: 'An error occurred during the operation',
-        errorNetwork: 'A network error occurred while connecting to the server',
+        errorNetwork: 'Operation failed : A network error occurred while connecting to the server',
         confirm: 'Confirm',
         cancel: 'Cancel',
         confirmation: 'Are you sure?',
@@ -291,7 +304,7 @@ export const translations = {
         title: "Contrôle Bus",
         home: "Accueil",
         universitySection: "Section Universitaire",
-        routes: "Routes",
+        routes: "Tragets",
         buses: "Bus",
         stations: "Stations",
         statistics: "Statistiques",
@@ -339,6 +352,19 @@ export const translations = {
       errors: {
         loadingData:'Chargement de données ...',
         error:"Aucune donnée disponible en raison d'une erreur de serveur ou de connection", 
+      },
+      univSection: { 
+        addUnivSection:"ajouter une section universitaire",
+        searchUniv:'rechercher une université',
+        confirmAdd: 'Êtes-vous sûr de vouloir ajouter cette université?',
+        confirmDelete: 'Êtes-vous sûr de vouloir supprimer cette université?',
+        confirmation: 'Êtes-vous sûr ?',
+        deleteNoticeText: {
+          allInfo: 'Cela supprimera toutes les informations associées.',
+          allRoutes: "Cela supprimera toutes les routes de cette université.",
+          allBuses: "Cela rendra tous ses bus libres et disponibles à l'utilisation."
+        }
+        
       },
       buses: {
         confirm: 'Confirmer',
@@ -412,7 +438,7 @@ export const translations = {
         deleteMsg: 'L\'itinéraire a été supprimé avec succès',
         error: 'Échec',
         errorMsg: 'Une erreur s\'est produite lors de l\'opération',
-        errorNetwork: 'Une erreur de connexion au serveur s\'est produite',
+        errorNetwork: 'Opération echouée : Une erreur de connexion au serveur s\'est produite',
         status: 'Statut',
         confirm: 'Confirmer',
         cancel: 'Annuler',
@@ -455,7 +481,7 @@ export const translations = {
         updateMsg: 'Les données ont été mises à jour avec succès',
         error: 'Échec',
         errorMsg: 'Une erreur s\'est produite lors de l\'opération',
-        errorNetwork: 'Une erreur de connexion au serveur s\'est produite',
+        errorNetwork: 'Opération echouée : Une erreur de connexion au serveur s\'est produite',
         confirm: 'Confirmer',
         cancel: 'Annuler',
         confirmation: 'Êtes-vous sûr ?',
@@ -579,7 +605,20 @@ export const translations = {
        loadingData:'تحميل البيانات...',
        error:'خطأ لا يمكن تحميل البيانات بسبب خطأ في السيرفر او خطأ في الاتصال',
       },
-
+      univSection: {
+        addUnivSection:"إضافة فرع جامعي",
+        searchUniv:'البحث عن فرع جامعي',
+        confirmAdd: 'هل أنت متأكد من اضافة هذه الجامعة؟',
+        confirmDelete: 'هل أنت متأكد من حذف هذه الجامعة أو الفرع الجامعي؟',
+        confirmation: 'هل أنت متأكد؟',
+        deleteNoticeText: {
+          allInfo: 'سيؤدي هذا إلى حذف جميع المعلومات المتعلقة بها.',
+          allRoutes: 'سيؤدي هذا إلى حذف جميع المسارات الخاصة بهذه الجامعة.',
+          allBuses: 'سيؤدي هذا إلى جعل جميع حافلاته مجانية ومتاحة للاستخدام.'
+        }
+        
+      },
+      
       buses: {
         confirm: 'تأكيد',
         title: 'إدارة الحافلات',
@@ -653,7 +692,7 @@ export const translations = {
         successMsg: 'تمت العملية بنجاح',
         error: 'فشل',
         errorMsg: 'حدث خطأ أثناء العملية',
-        errorNetwork: 'حدث خطاء في الاتصال بالسيرفر',
+        errorNetwork: 'فشل العملية: حدث خطاء في الاتصال بالسيرفر',
         status: 'الحالة',
         confirm: 'تأكيد',
         cancel: 'الغاء',
@@ -696,7 +735,7 @@ export const translations = {
         updateMsg: 'تم تحديث البيانات بنجاح',
         error: 'فشل',
         errorMsg: 'حدث خطأ أثناء العملية',
-        errorNetwork: 'حدث خطاء في الاتصال بالسيرفر',
+        errorNetwork: 'فشل العملية: حدث خطاء في الاتصال بالسيرفر',
         status: 'الحالة',
         confirm: 'تأكيد',
         cancel: 'الغاء',
