@@ -105,6 +105,7 @@ app.get('/proc', (req, res) => {
 });
 */
 
+/*
 
 io.on('connect',(socket)=>{
 
@@ -119,6 +120,5 @@ io.on('connect',(socket)=>{
  // console.log(io.sockets.adapter.rooms); // Log the rooms
 });
 
+})  */
 
-
-})

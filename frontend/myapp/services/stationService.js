@@ -10,7 +10,7 @@ export const stationService = {
         try {
             const response = await axios.get(`${apiUrl}/getAllStations`);
           //  console.log(response.data);
-            return response.data;
+            return response;
         } catch (error) {
             return error;
         }

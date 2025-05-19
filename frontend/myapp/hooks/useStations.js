@@ -1,80 +1,64 @@
-import { useState, useEffect } from 'react';
 import { stationService } from "../services/stationService";
-
+import { useQuery,useMutation,useQueryClient } from '@tanstack/react-query';
 
 export const useStations =()=> {
 
-const [stations, setStations] = useState([])
-const [loading, setLoading] = useState(true)
-const [error, setError] = useState(null)
+const queryClient = useQueryClient();
 
-const fetchStations = async ()=>{
-    try {
-        setLoading(true);
-        setError(null);
+const {data,isLoading,isError} = useQuery({
+    queryKey: ['stations'],
+    queryFn: async ()=>{
         const response = await stationService.getAllStations();
-        setStations(
-            response.stations.map(({ ID_ARRET, NOM_ARRET }) => ({
-                id: ID_ARRET,
-                name: NOM_ARRET
-            }))
-        );
-        
-    } catch (error) {
-        setError(error.message);
-    } finally {
-        setLoading(false);
-    }
-   };
-
-   useEffect(()=>{
-    fetchStations();
-   },[]);
-
-
-   const addStation = async (station) => {
-
-        const serviceAddResponse = await stationService.addStation(station);
-       console.log('serviceAddResponse = ',serviceAddResponse);
-        if(serviceAddResponse.status==200){
-                  
-        setStations((prev) => [
-            ...prev, 
-            { id: serviceAddResponse.data.newStationId, name: station.name }
-        ]);
+        if(response.status !== 200){
+            throw new Error(response.message || "Error fetching stations");
         }
+       
+        return response.data.stations.map(({ ID_ARRET, NOM_ARRET }) => ({
+            id: ID_ARRET,
+            name: NOM_ARRET,
+          }));
+    },
+    staleTime: Infinity,
+})
 
-   return serviceAddResponse
-
-};
-
-   const updateStation = async (updatedStation)=>{
-      
-        const serviceUpdateResponse = await stationService.updateStation(updatedStation)
-        console.log("UPDATE STATUS = "+serviceUpdateResponse.status);
-        if(serviceUpdateResponse.status == 200){
- 
-
-            setStations(prev => prev.map(station => 
-                station.id == updatedStation.id ? { ...updatedStation, id: station.id } : station
-              ));
+const addNewStationMutation = useMutation({
+    mutationFn: async (station)=>{
+        return await stationService.addStation(station);
+    },
+    onSuccess: (response) =>{
+        if(response.status == 200){
+            queryClient.invalidateQueries(['stations']);
+            queryClient.invalidateQueries(['routes']);
         }
-
-        return serviceUpdateResponse
-
     }
+})
 
-   const deleteStation = async (stationId)=>{
+const updateStationMutation = useMutation({
+    mutationFn: async(updatedStation)=>{
+        return await stationService.updateStation(updatedStation);
+    },
+    onSuccess: ()=>{
+            queryClient.invalidateQueries(['stations']);
+            queryClient.invalidateQueries(['routes']);
+    }
+})
 
-    const serviceDeleteResponse = await stationService.deleteStation(stationId)
-     console.log('STATION DELETE STATUS = ',serviceDeleteResponse.status);
+    const deleteStationMutation = useMutation({
+        mutationFn: async(stationId)=>{
+            return await stationService.deleteStation(stationId);
+        },
+        onSuccess: ()=>{
+            queryClient.invalidateQueries(['stations']);
+            queryClient.invalidateQueries(['routes']);
+        }
+    })
 
-     if(serviceDeleteResponse.status == 200){
-        setStations((prev)=>prev.filter(station=>station.id!==stationId));
-     }
-    return serviceDeleteResponse;
-   };
+return { 
 
-return { stations, loading, error, fetchStations, addStation, updateStation, deleteStation };
-
+     loading:isLoading,
+     error:isError,
+     stations: data || [],
+     addStation : addNewStationMutation.mutateAsync, 
+     updateStation : updateStationMutation.mutateAsync,
+     deleteStation: deleteStationMutation.mutateAsync };
 };

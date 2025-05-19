@@ -3,6 +3,7 @@ import { useLanguage } from '../../../../context/LanguageContext';
 import { translations } from '../../../../translations/translations';
 import './LanguageSettings.scss';
 import { MdLanguage } from 'react-icons/md';
+import swal from 'sweetalert2';
 
 const LanguageSettings = () => {
   const { currentLanguage, setLanguage } = useLanguage();

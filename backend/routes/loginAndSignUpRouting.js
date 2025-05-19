@@ -1,8 +1,6 @@
 import express from 'express';
 import database from '../config/database.js'
 import dotenv from 'dotenv';
-import generateOTP from '../utils/generateOtpCode.js';
-import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 dotenv.config();

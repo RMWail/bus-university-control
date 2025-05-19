@@ -9,7 +9,7 @@ export const universityService = {
       
             const response = await axios.get(`${apiUrl}/getUniversitySections`);
             
-            return response.data
+            return response
         }
         catch(err){
             return err;

@@ -30,7 +30,7 @@ const stringToArray = (array) =>{
         
             
             paths[0].forEach(element => {
-              const drivers = element.busesInfo.split(',');
+              const drivers = element.busesInfo ? element.busesInfo.split(',') : [];
               let busesInfo = [];
               for(let i=0;i<drivers.length;i++) {
                let busInfo = {

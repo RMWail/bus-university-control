@@ -11,7 +11,6 @@ import { TimePicker } from 'antd';
 import './RoutesManagement.scss';
 import { FaArrowCircleLeft, FaArrowCircleRight } from 'react-icons/fa';
 import dayjs from 'dayjs';
-import axios from 'axios';
 import swal from 'sweetalert2';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { translations } from '../../../../translations/translations';
@@ -188,8 +187,8 @@ const RoutesManagement = () => {
       if(res.isConfirmed) {
         const targetRoute = routes.find(route => route.id === newRoute.id);
         const oldBuses = targetRoute.buses;
-
-        const editRouteResponse = await editRoute(newRoute.id,oldBuses,newRoute);
+        console.log("Sent Data = \n"+newRoute.id+"  "+oldBuses+"  "+newRoute.internalStations)
+        const editRouteResponse = await editRoute({routeId:newRoute.id,oldBuses:oldBuses,updatedRoute:newRoute});
         console.log('editRouteResponse = ',editRouteResponse);
 
         if(editRouteResponse.status == 200){

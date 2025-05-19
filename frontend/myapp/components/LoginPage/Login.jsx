@@ -140,7 +140,7 @@ function Login() {
             //   setError(passwordRef.current,"");
              }
              else if(err.response.data.answer===0){
-               setError(usernamePhoneRef.current,"no account with this credentials");
+               setError(usernamePhoneRef.current,"Wrong credentials");
              //  setError(passwordRef.current,"");
              }
         {/*

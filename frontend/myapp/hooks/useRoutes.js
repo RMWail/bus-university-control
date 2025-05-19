@@ -1,3 +1,4 @@
+/*
 import { useEffect,useState } from "react";
 import { routeService } from "../services/routeService";
 
@@ -79,8 +80,8 @@ export const useRoutes = ()=>{
 
     return {loading,error,routes,availableStations,availableBuses,universitySections,addNewRoute,editRoute,deleteRoute};
 
-}
-/*
+} */
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { routeService } from "../services/routeService";
 
@@ -97,7 +98,7 @@ export const useRoutes = () => {
             }
             return response.data;
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes cache
+        staleTime: Infinity, // 5 minutes cache
     });
 
     // Mutations for adding, editing, and deleting routes
@@ -113,7 +114,7 @@ export const useRoutes = () => {
     });
 
     const editRouteMutation = useMutation({
-        mutationFn: async ({ routeId, oldBuses, updatedRoute }) => {
+        mutationFn: async ({routeId, oldBuses, updatedRoute}) => {
             return await routeService.editRoute(routeId, oldBuses, updatedRoute);
         },
         onSuccess: () => {
@@ -142,6 +143,3 @@ export const useRoutes = () => {
         deleteRoute: deleteRouteMutation.mutateAsync,
     };
 };
-
-
-*/

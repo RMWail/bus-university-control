@@ -112,7 +112,7 @@ const BusManagement = () => {
       }).then(async(res)=>{
         
       if(res.isConfirmed){
-        const serviceUpdateBusResponse = await updateBus(newBus,oldBusNbr);
+        const serviceUpdateBusResponse = await updateBus({updatedBus:newBus,oldBusNbr:oldBusNbr});
         if(serviceUpdateBusResponse.status == 200){
           if(serviceUpdateBusResponse.data.message!='Exist'){
             console.log(serviceUpdateBusResponse.data.message);

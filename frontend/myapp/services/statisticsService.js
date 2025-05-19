@@ -8,6 +8,7 @@ export const statisticsService = {
         try {
 
             const response = await axios.get(`${apiUrl}/getStatisticsData`);
+          
             return response
         }
         catch(err){

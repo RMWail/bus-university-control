@@ -1,9 +1,8 @@
 import express  from 'express';
 import database from '../config/database.js';
-import multer from 'multer';
 import bodyParser from 'body-parser';
 
-import dotenv from 'dotenv';
+
 
 const routesRouter = express.Router();
 routesRouter.use(bodyParser.json());
@@ -152,7 +151,7 @@ routesRouter.get('/getRoutesData',(req,res)=>{
   // Tomorrow I need to finish this one here wichis updating a route
   routesRouter.post('/editRoute',async (req,res)=>{
     try {
-           //   console.log(req.body);
+              console.log(req.body);
             const relationId = req.body.routeId;
             //     const mainStationId = req.body.mainStationId;
                  const oldBusesString = arrayToString(req.body.oldBuses);
